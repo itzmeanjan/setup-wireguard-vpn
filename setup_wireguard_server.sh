@@ -34,7 +34,9 @@
 # - Ideally, for every new peer that you want to add to this WireGuard server, one will increment that number by 1, starting from 2, until it reaches 254.
 # - In essence, for this WireGuard server that you just setup, you can connect upto 253 peers.
 # - Now go ahead and execute the client setup script, grab the `peer_.conf` file it just output. `_` is `PEER_ID`.
-# - You can use this peer configuration file in your mobile or desktop WireGuard clients.
+# - Finally, you can use this peer configuration file in your mobile or desktop WireGuard clients.
+#
+# Enjoy WireGuard!
 
 echo "[+] This BASH script helps you setup WireGuard VPN server and clients."
 read -p "[?] Have you read this script and understand what it does to your system? (y/n): " response
