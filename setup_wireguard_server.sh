@@ -2,6 +2,8 @@
 
 # BASH script for easily setting up WireGuard VPN Server and Clients
 # Author: Anjan Roy | September, 2025
+# Repository: https://github.com/itzmeanjan/setup-wireguard-vpn
+# License: BSD 3-Clause License
 #
 # I have been using WireGuard as my personal VPN solution for couple of years now.
 # Before that I fiddled around with OpenVPN, sometimes it worked and sometimes it did not. I didn't actually like it.
