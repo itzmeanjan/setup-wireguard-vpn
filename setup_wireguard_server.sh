@@ -44,23 +44,23 @@ if [[ "$response" != "y" && "$response" != "Y" ]]; then
     echo "[!] Please go through the script before running it. Exiting."
     exit 1
 fi
-echo "[+] Going ahead with setting up WireGuard server"
+echo "[+] Going ahead with setting up WireGuard server."
 
-echo "[+] Updating system and installing WireGuard"
+echo "[+] Updating system and installing WireGuard."
 sudo apt update
 sudo apt install wireguard -y
 
-echo "[+] Generating WireGuard server private + public keypair"
+echo "[+] Generating WireGuard server private + public keypair."
 WG_PRIV_KEY=$(wg genkey)
 WG_PUB_KEY=$(echo $WG_PRIV_KEY | wg pubkey)
 
-echo "[+] Writing WireGuard server private + public keypair to respective files"
+echo "[+] Writing WireGuard server private + public keypair to respective files."
 echo $WG_PRIV_KEY | sudo tee /etc/wireguard/private.key
 echo $WG_PUB_KEY | sudo tee /etc/wireguard/public.key
 
 sudo chmod go= /etc/wireguard/private.key
 
-echo "[+] Computing pseudo-random IPv6 address prefix"
+echo "[+] Computing pseudo-random IPv6 address prefix."
 DATE=$(date +%s%N)
 MACHINE_ID=$(cat /var/lib/dbus/machine-id)
 SHA256_DIGEST=$(printf $DATE$MACHINE_ID | sha256sum)
@@ -68,10 +68,10 @@ IPV6_ADDRESS_PREFIX=$(printf $SHA256_DIGEST | cut -c 55-)
 IPV6_ADDRESS=$(printf "fd%s:%s:%s::1/64" $(echo $IPV6_ADDRESS_PREFIX | cut -c 1-2) $(echo $IPV6_ADDRESS_PREFIX | cut -c 3-6) $(echo $IPV6_ADDRESS_PREFIX | cut -c 7-10))
 WG_CONFIG_FILE="/etc/wireguard/wg0.conf"
 
-echo "[+] Figuring out publicly visible IPv4 address of WireGuard server"
+echo "[+] Figuring out publicly visible IPv4 address of WireGuard server."
 PUBLIC_IP_OF_WG_SERVER=$(curl -s ipinfo.io/ip)
 
-echo "[+] Writing WireGuard server's initial configuration file"
+echo "[+] Writing WireGuard server's initial configuration file."
 cat << EOF > $WG_CONFIG_FILE
 [Interface]
 PrivateKey = $WG_PRIV_KEY
@@ -81,12 +81,12 @@ MTU = 1420
 SaveConfig = true
 EOF
 
-echo "[+] Updating WireGuard server's network configuration to forward both IPv4 and IPv6 traffic"
+echo "[+] Updating WireGuard server's network configuration to forward both IPv4 and IPv6 traffic."
 echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
 echo "net.ipv6.conf.all.forwarding=1" | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 
-echo "[+] Updating WireGuard server configuration file to add firewall rules"
+echo "[+] Updating WireGuard server configuration file to add firewall rules."
 INTERFACE=$(ip route list default | awk '{for (i=1; i<=NF; i++) if ($i == "dev") {print $(i+1); exit}}')
 
 {
@@ -105,16 +105,17 @@ sudo ufw disable
 sudo ufw enable
 sudo ufw status
 
-echo "[+] Enabling and starting the WireGuard server with systemd"
+echo "[+] Enabling and starting the WireGuard server with systemd."
 sudo systemctl enable wg-quick@wg0.service
 sudo systemctl start wg-quick@wg0.service
 sudo systemctl status wg-quick@wg0.service
 
-echo "[+] Wireguard server should be running"
+echo "[+] Wireguard server should be running."
 sudo wg
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+echo "[+] Generating WireGuard client setup BASH script."
 WG_CLIENT_SETUP_SCRIPT="setup_wireguard_client.sh"
 
 # We use 'EOF' (with single quotes) to prevent the shell from expanding
@@ -137,16 +138,16 @@ if [[ "$response" != "y" && "$response" != "Y" ]]; then
     echo "[!] Please go through the script before running it. Exiting."
     exit 1
 fi
-echo "[+] Going ahead with setting up a WireGuard client"
+echo "[+] Going ahead with setting up a WireGuard client."
 
 # For the first peer, keep PEER_ID=2.
 # For every new peer, increment this number by 1.
 # The max value can be 254.
 # It allows you to add at max 253 peers to a WireGuard server.
 PEER_ID=2
-echo "[+] Setting up WireGuard peer with ID: $PEER_ID"
+echo "[+] Setting up WireGuard peer with ID: $PEER_ID."
 
-echo "[+] Generating WireGuard peer private + public keypair"
+echo "[+] Generating WireGuard peer private + public keypair."
 PEER_PRIV_KEY=$(wg genkey)
 PEER_PUB_KEY=$(echo $PEER_PRIV_KEY | wg pubkey)
 
@@ -161,7 +162,7 @@ PEER_IPV6_ADDRESS=$(printf "fd%s:%s:%s::%s" $(echo $SERVER_IPV6_PREFIX | cut -c 
 
 CONFIG_FILE="peer$PEER_ID.conf"
 
-echo "[+] Writing WireGuard peer configuration to $CONFIG_FILE"
+echo "[+] Writing WireGuard peer configuration to '$CONFIG_FILE'."
 cat << EOF_CLIENT > "$CONFIG_FILE"
 [Interface]
 PrivateKey = $PEER_PRIV_KEY
@@ -177,15 +178,11 @@ Endpoint = $SERVER_ENDPOINT:51820
 PersistentKeepalive = 25
 EOF_CLIENT
 
-echo "[+] Adding peer to the WireGuard server configuration"
-# Note: The server needs sudo privileges to modify its own configuration.
+echo "[+] Adding peer to the WireGuard server configuration."
 sudo wg set wg0 peer "$PEER_PUB_KEY" allowed-ips "$PEER_IPV4_ADDRESS/32,$PEER_IPV6_ADDRESS/128"
 
 echo "[+] WireGuard peer configuration file '$CONFIG_FILE' is ready."
 echo "[+] Use it with your WireGuard client application."
-
-# Save the server's new configuration
-sudo wg-quick save wg0
 EOF
 
 # Now, use `sed` to substitute the placeholder values with the actual
@@ -199,5 +196,5 @@ sed -i "s|__SERVER_IPV6_PREFIX__|$IPV6_ADDRESS_PREFIX|" "$WG_CLIENT_SETUP_SCRIPT
 
 sudo chmod +x $WG_CLIENT_SETUP_SCRIPT
 
-echo "[+] WireGuard client setup script '$WG_CLIENT_SETUP_SCRIPT' should be ready to use"
-echo "[+] Go ahead and give it a read, before you run it"
+echo "[+] WireGuard client setup script '$WG_CLIENT_SETUP_SCRIPT' should be ready to use."
+echo "[+] Go ahead and give it a read, before you run it."
