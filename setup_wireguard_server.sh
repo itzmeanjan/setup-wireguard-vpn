@@ -38,7 +38,7 @@
 # - Now go ahead and execute the client setup script, grab the `peer_.conf` file it just output. `_` is `PEER_ID`.
 # - Finally, you can use this peer configuration file in your mobile or desktop WireGuard clients.
 #
-# Enjoy WireGuard!
+# A blog post @ https://itzmeanjan.in/pages/host-your-own-vpn_server.html. Enjoy WireGuard!
 
 echo "[+] This BASH script helps you setup WireGuard VPN server and clients."
 read -p "[?] Have you read this script and understand what it does to your system? (y/n): " response
