@@ -49,8 +49,8 @@ fi
 echo "[+] Going ahead with setting up WireGuard server."
 
 echo "[+] Updating system and installing WireGuard."
-sudo apt update
-sudo apt install wireguard -y
+sudo apt-get update
+sudo apt-get install wireguard -y
 
 echo "[+] Generating WireGuard server private + public keypair."
 WG_PRIV_KEY=$(wg genkey)
