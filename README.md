@@ -28,10 +28,10 @@ sudo wg
 ```
 
 - Go to network configuration page of VPS console and open port `51820`. The WireGuard VPN server is expecting peer connection on that port.
-- Executing WireGuard server setup script should generate another script `setup_wireguard_client.sh`. Let's execute that for setting up our first WireGuard client.
+- Executing WireGuard server setup script should generate another script `setup_wireguard_client.sh`. Let's execute that for setting up our first WireGuard client, with `PEER_ID=2`.
 
 ```bash
-sudo ./setup_wireguard_client.sh
+sudo ./setup_wireguard_client.sh 2
 ```
 
 - It should produce a WireGuard peer configuration file `peer2.conf`. You can import this configuration file in your WireGuard client application to connect to the VPN server, setting up a secure tunnel.
@@ -42,8 +42,13 @@ curl -s https://ipinfo.io | jq
 ```
 
 - Also check if your DNS lookups are leaking @ <https://www.dnsleaktest.com/>. We want all the traffic to flow through WireGuard secure tunnel and exit into public Internet, from our VPN server.
-- For setting up another WireGuard peer, SSH back into VPS, running WireGuard server, open WireGuard client configuration script `setup_wireguard_client.sh`. Find a BASH variable named `PEER_ID`, increment its value to 3. Save the script and re-execute it. It should produce another WireGuard peer configuration file `peer3.conf`. You can import this peer configuration file in another WireGuard client app.
-- Simply put, for every new WireGuard client you setup, after the first client, you have to increment the `PEER_ID` by 1, to assign correct IP addresses to the peers. If you don't do that, tunneling won't work as expected.
+- For setting up another WireGuard peer, SSH back into VPS, running WireGuard server, execute the script `setup_wireguard_client.sh` with `PEER_ID=3`. It should produce another WireGuard peer configuration file `peer3.conf`. You can import this peer configuration file in another WireGuard client app.
+
+```bash
+sudo ./setup_wireguard_client.sh 3
+```
+
+- Simply put, for every new WireGuard client you setup, you have to increment the `PEER_ID` by 1, to assign correct IP addresses to the peers. If you don't do that, tunneling won't work as expected. The WireGuard server gets `PEER_ID=1` allocated. You can keep incrementing till `PEER_ID=254`. Meaning it should allow you to attach at max 253 clients to the WireGuard server.
 - If you restart VPS, running WireGuard server, you have to reload the IPv4+IPv6 packet forwarding configuration, from `/etc/sysctl.conf`.
 
 ```bash
